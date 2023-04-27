@@ -23,11 +23,19 @@ cv.ParryTime = CreateConVar("pizzataunt_parry_parrytime", "100",
 cv.ParryExplosives = CreateConVar("pizzataunt_parry_explosives", "1",
 	FCVAR_ARCHIVE + FCVAR_REPLICATED, "Allow parrying blast damage?")
 
+cv.ParryAll = CreateConVar("pizzataunt_parry_everything", "0",
+	FCVAR_ARCHIVE + FCVAR_REPLICATED, "Allow parrying every damage type? Includes stuff like " ..
+	"fall damage, explosives, fire, crushing, etc...")
+
 PizzaTaunt.ParryableDamage = bit.bor(DMG_BULLET, DMG_SLASH, DMG_CLUB, DMG_BUCKSHOT, DMG_SNIPER,
 	DMG_BLAST, DMG_BLAST_SURFACE) -- Special handling
 
 function PizzaTaunt.CanParryDamage(dmg)
 	local dtyp = dmg:GetDamageType()
+
+	if cv.ParryAll:GetBool() then
+		return true
+	end
 
 	if bit.band(dtyp, PizzaTaunt.ParryableDamage) == 0 and dtyp ~= DMG_GENERIC then
 		return false
@@ -54,7 +62,7 @@ function PizzaTaunt.DoParryLogic(ent, dmg)
 	-- if atk == ent then return end
 
 	local cvar = IsPlayer(atk) and cv.ParryPlayers
-		or IsValid(atk) and atk:IsNPC() and cv.ParryNPCs
+		or IsValid(atk) and (atk:IsNPC() or atk:IsNextBot()) and cv.ParryNPCs
 		or false -- default: parry non-npc and non-player damage
 
 	if cvar and not cvar:GetBool() then return end
