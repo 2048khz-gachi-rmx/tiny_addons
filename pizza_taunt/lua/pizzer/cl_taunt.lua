@@ -126,7 +126,7 @@ end)
 local keyz = {}
 
 for k,v in pairs(_G) do
-	if isstring(k) and k:match("^KEY_") then
+	if isstring(k) and (k:match("^KEY_") or k:match("^MOUSE_")) then
 		keyz[#keyz + 1] = k
 	end
 end
@@ -134,7 +134,7 @@ end
 local rebindCmd = "pizzataunt_setkey"
 concommand.Add(rebindCmd, function(ply, cmd, args, argStr)
 	local str = argStr:upper():Trim()
-	if not str:match("^KEY_") then
+	if not str:match("^KEY_") and not str:match("^MOUSE_") then
 		return
 	end
 
@@ -150,13 +150,15 @@ end, function(_, args)
 	local matches = {}
 
 	for k,v in pairs(keyz) do
-		if v:find("KEY_" .. str, 1, true) or v:find(str, 1, true) then
+		if v:find("KEY_" .. str, 1, true) or v:find("MOUSE_" .. str, 1, true) or v:find(str, 1, true) then
 			matches[#matches + 1] = rebindCmd .. " " .. v
 		end
 	end
 
 	table.sort(matches, function(a, b)
-		local b1, b2 = a:match("KEY_" .. str), b:match("KEY_" .. str)
+		local b1, b2 = a:match("KEY_" .. str) or a:match("MOUSE_" .. str),
+					   b:match("KEY_" .. str) or b:match("MOUSE_" .. str)
+
 		if b1 and not b2 then return true end
 		if b2 and not b1 then return false end
 		if #a ~= #b then return #a < #b end
