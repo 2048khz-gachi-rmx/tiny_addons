@@ -29,7 +29,7 @@ PizzaTaunt.ParryableDamage = bit.bor(DMG_BULLET, DMG_SLASH, DMG_CLUB, DMG_BUCKSH
 function PizzaTaunt.CanParryDamage(dmg)
 	local dtyp = dmg:GetDamageType()
 
-	if bit.band(dtyp, PizzaTaunt.ParryableDamage) == 0 then
+	if bit.band(dtyp, PizzaTaunt.ParryableDamage) == 0 and dtyp ~= DMG_GENERIC then
 		return false
 	end
 
